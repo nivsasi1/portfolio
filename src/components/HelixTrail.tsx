@@ -15,8 +15,8 @@ export function HelixTrail() {
   }, [])
 
   const cx = dims.w * 0.5
-  const amp = Math.min(dims.w * 0.34, 260)
-  const periods = 3
+  const amp = Math.min(dims.w * 0.42, 480)
+  const periods = 1.75
   const k = (periods * 2 * Math.PI) / (dims.h || 1)
 
   // static trajectory curve spanning the viewport height
@@ -42,8 +42,8 @@ export function HelixTrail() {
       const x = cx + amp * Math.sin(phase)
       // depth: cos(phase) → +1 front of cylinder, -1 back. drives size + opacity.
       const depth = (Math.cos(phase) + 1) / 2
-      const r = 2.2 + 2.4 * depth
-      const op = 0.35 + 0.65 * depth
+      const r = 4 + 3.5 * depth
+      const op = 0.55 + 0.45 * depth
       if (dot.current) {
         dot.current.setAttribute('cx', x.toFixed(1))
         dot.current.setAttribute('cy', y.toFixed(1))
@@ -53,8 +53,8 @@ export function HelixTrail() {
       if (glow.current) {
         glow.current.setAttribute('cx', x.toFixed(1))
         glow.current.setAttribute('cy', y.toFixed(1))
-        glow.current.setAttribute('r', (r * 2.6).toFixed(2))
-        glow.current.setAttribute('opacity', (op * 0.4).toFixed(2))
+        glow.current.setAttribute('r', (r * 2.8).toFixed(2))
+        glow.current.setAttribute('opacity', (op * 0.5).toFixed(2))
       }
     }
     const onScroll = () => {
@@ -78,7 +78,7 @@ export function HelixTrail() {
             <feGaussianBlur stdDeviation="5" />
           </filter>
         </defs>
-        <path d={path} fill="none" stroke="var(--color-glow)" strokeOpacity="0.08" strokeWidth="1.5" />
+        <path d={path} fill="none" stroke="var(--color-glow)" strokeOpacity="0.16" strokeWidth="2" />
         <circle ref={glow} fill="var(--color-glow)" filter="url(#helixGlow)" r="0" />
         <circle ref={dot} fill="var(--color-glow-soft)" r="0" />
       </svg>
