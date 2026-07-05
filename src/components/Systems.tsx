@@ -3,7 +3,7 @@ import { Section, StatusDot } from './Panel'
 
 export function Systems() {
   return (
-    <Section id="systems" code="03" title="Systems">
+    <Section id="systems" code="04" title="Systems">
       <div className="grid gap-5 sm:grid-cols-3">
         {systems.map((sys) => (
           <div key={sys.module} className="glass p-6">

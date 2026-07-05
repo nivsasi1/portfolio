@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BootSequence } from './components/BootSequence'
 import { Hero } from './components/Hero'
 import { About } from './components/About'
+import { ServiceRecord } from './components/ServiceRecord'
 import { Projects } from './components/Projects'
 import { Systems } from './components/Systems'
 import { Telemetry } from './components/Telemetry'
@@ -29,6 +30,7 @@ export default function App() {
           </a>
           <div className="flex gap-5 text-xs text-dim sm:gap-7 sm:text-sm">
             <a href="#about" className="transition hover:text-glow-soft">ABOUT</a>
+            <a href="#experience" className="transition hover:text-glow-soft">EXPERIENCE</a>
             <a href="#deployments" className="transition hover:text-glow-soft">WORK</a>
             <a href="#systems" className="transition hover:text-glow-soft">SYSTEMS</a>
             <a href="#comms" className="transition hover:text-glow-soft">CONTACT</a>
@@ -38,6 +40,7 @@ export default function App() {
 
       <Hero />
       <About />
+      <ServiceRecord />
       <Projects />
       <Systems />
       <Telemetry />

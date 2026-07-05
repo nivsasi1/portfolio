@@ -28,7 +28,7 @@ export function Comms() {
   }
 
   return (
-    <Section id="comms" code="05" title="Comms">
+    <Section id="comms" code="06" title="Comms">
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="glass p-6 sm:p-8">
           <p className="mb-6 text-sm text-dim">

@@ -13,7 +13,7 @@ export function Telemetry() {
   ]
 
   return (
-    <Section id="telemetry" code="04" title="Telemetry">
+    <Section id="telemetry" code="05" title="Telemetry">
       <div className="glass p-6 sm:p-8">
         <div className="mb-6 flex items-center justify-between font-mono text-xs text-dim">
           <span>SOURCE: api.github.com/{profile.githubUser}</span>

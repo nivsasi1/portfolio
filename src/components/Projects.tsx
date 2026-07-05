@@ -3,11 +3,11 @@ import { Section } from './Panel'
 
 export function Projects() {
   return (
-    <Section id="deployments" code="02" title="Featured Deployments">
+    <Section id="deployments" code="03" title="Featured Deployments">
       <div className="grid gap-6">
         {projects.map((p) => (
           <article key={p.name} className="glass overflow-hidden transition hover:border-glow/60">
-            <div className="grid sm:grid-cols-2">
+            <div className={p.image ? 'grid sm:grid-cols-2' : ''}>
               {p.image && (
                 <a href={p.liveUrl ?? p.repoUrl} target="_blank" rel="noreferrer" className="block">
                   <img
