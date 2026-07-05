@@ -7,6 +7,7 @@ import { Projects } from './components/Projects'
 import { Systems } from './components/Systems'
 import { Telemetry } from './components/Telemetry'
 import { Comms } from './components/Comms'
+import { HelixTrail } from './components/HelixTrail'
 import { profile } from './data/site'
 
 const BOOT_KEY = 'ns-booted'
@@ -23,6 +24,7 @@ export default function App() {
 
   return (
     <div className="grid-bg min-h-screen">
+      <HelixTrail />
       <nav className="fixed top-0 z-40 w-full border-b border-line/60 bg-void/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3 font-mono text-sm">
           <a href="#" className="flex items-center gap-2 text-glow">
