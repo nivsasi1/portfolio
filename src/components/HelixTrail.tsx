@@ -1,86 +1,124 @@
 import { useEffect, useRef, useState } from 'react'
 
-// A tiny glowing dot that rides a vertical sine "trajectory" — as if orbiting a
-// cylinder — weaving left/right and travelling top→bottom as the page scrolls.
+const SECTION_IDS = ['about', 'experience', 'deployments', 'systems', 'telemetry', 'comms']
+
+// A glowing beacon that marks the active section. It parks in the gap just above
+// each section (alternating left/right) and eases along a connecting weave to the
+// next section's corner as you scroll — a "you are here" telemetry marker.
 export function HelixTrail() {
   const dot = useRef<SVGCircleElement>(null)
   const glow = useRef<SVGCircleElement>(null)
-  const [dims, setDims] = useState({ w: 0, h: 0 })
+  const line = useRef<SVGPathElement>(null)
+  const els = useRef<HTMLElement[]>([])
+  const pos = useRef({ x: 0, y: 0, init: false })
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    const update = () => setDims({ w: window.innerWidth, h: window.innerHeight })
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
+    const collect = () => {
+      els.current = SECTION_IDS.map((id) => document.getElementById(id)).filter(
+        (e): e is HTMLElement => !!e,
+      )
+      setReady(els.current.length > 1)
+    }
+    collect()
+    const t = setTimeout(collect, 500) // re-collect after fonts/layout settle
+    window.addEventListener('resize', collect)
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('resize', collect)
+    }
   }, [])
 
-  const cx = dims.w * 0.5
-  const amp = Math.min(dims.w * 0.42, 480)
-  const periods = 1.75
-  const k = (periods * 2 * Math.PI) / (dims.h || 1)
-
-  // static trajectory curve spanning the viewport height
-  let path = ''
-  if (dims.h) {
-    const steps = 80
-    for (let i = 0; i <= steps; i++) {
-      const y = (i / steps) * dims.h
-      const x = cx + amp * Math.sin(y * k)
-      path += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1)
-    }
-  }
-
   useEffect(() => {
-    if (!dims.h) return
+    if (!ready) return
     let raf = 0
-    const render = () => {
+    let lastY = -1
+
+    const anchorX = (i: number, w: number) => {
+      const off = Math.min(w * 0.16, 220)
+      return i % 2 === 0 ? off : w - off
+    }
+
+    const frame = () => {
       raf = 0
-      const max = document.documentElement.scrollHeight - window.innerHeight
-      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0
-      const y = p * dims.h
-      const phase = y * k
-      const x = cx + amp * Math.sin(phase)
-      // depth: cos(phase) → +1 front of cylinder, -1 back. drives size + opacity.
-      const depth = (Math.cos(phase) + 1) / 2
-      const r = 4 + 3.5 * depth
-      const op = 0.55 + 0.45 * depth
-      if (dot.current) {
-        dot.current.setAttribute('cx', x.toFixed(1))
-        dot.current.setAttribute('cy', y.toFixed(1))
-        dot.current.setAttribute('r', r.toFixed(2))
-        dot.current.setAttribute('opacity', op.toFixed(2))
+      const w = window.innerWidth
+      const vh = window.innerHeight
+      const y = window.scrollY
+      const scrolling = y !== lastY
+      lastY = y
+      const list = els.current
+
+      // viewport-space anchor points, sitting in the gap just above each section
+      const pts = list.map((el, i) => ({
+        x: anchorX(i, w),
+        y: el.getBoundingClientRect().top - 26,
+      }))
+
+      // draw the connecting weave
+      if (line.current && pts.length > 1) {
+        let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`
+        for (let i = 1; i < pts.length; i++) {
+          const a = pts[i - 1]
+          const b = pts[i]
+          const my = ((a.y + b.y) / 2).toFixed(1)
+          d += ` C ${a.x.toFixed(1)} ${my}, ${b.x.toFixed(1)} ${my}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`
+        }
+        line.current.setAttribute('d', d)
       }
-      if (glow.current) {
-        glow.current.setAttribute('cx', x.toFixed(1))
-        glow.current.setAttribute('cy', y.toFixed(1))
-        glow.current.setAttribute('r', (r * 2.8).toFixed(2))
-        glow.current.setAttribute('opacity', (op * 0.5).toFixed(2))
+
+      // active section = last one whose top has crossed 40% of the viewport
+      let idx = 0
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].getBoundingClientRect().top <= vh * 0.4) idx = i
       }
+      const target = pts[idx]
+
+      const p = pos.current
+      if (!p.init) {
+        p.x = target.x
+        p.y = target.y
+        p.init = true
+      }
+      p.x += (target.x - p.x) * 0.09
+      p.y += (target.y - p.y) * 0.09
+      const settling = Math.abs(target.x - p.x) + Math.abs(target.y - p.y) > 0.4
+
+      const cx = p.x.toFixed(1)
+      const cy = p.y.toFixed(1)
+      dot.current?.setAttribute('cx', cx)
+      dot.current?.setAttribute('cy', cy)
+      glow.current?.setAttribute('cx', cx)
+      glow.current?.setAttribute('cy', cy)
+
+      if (scrolling || settling) kick()
     }
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(render)
+
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(frame)
     }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    render()
+    window.addEventListener('scroll', kick, { passive: true })
+    window.addEventListener('resize', kick)
+    kick()
     return () => {
-      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', kick)
+      window.removeEventListener('resize', kick)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [dims, cx, amp, k])
+  }, [ready])
 
-  if (!dims.h) return null
+  if (!ready) return null
 
   return (
     <div className="pointer-events-none fixed inset-0" style={{ zIndex: -1 }} aria-hidden>
       <svg width="100%" height="100%" className="h-full w-full">
         <defs>
-          <filter id="helixGlow" x="-200%" y="-200%" width="500%" height="500%">
-            <feGaussianBlur stdDeviation="5" />
+          <filter id="helixGlow" x="-250%" y="-250%" width="600%" height="600%">
+            <feGaussianBlur stdDeviation="8" />
           </filter>
         </defs>
-        <path d={path} fill="none" stroke="var(--color-glow)" strokeOpacity="0.16" strokeWidth="2" />
-        <circle ref={glow} fill="var(--color-glow)" filter="url(#helixGlow)" r="0" />
-        <circle ref={dot} fill="var(--color-glow-soft)" r="0" />
+        <path ref={line} fill="none" stroke="var(--color-glow)" strokeOpacity="0.14" strokeWidth="2" />
+        <circle ref={glow} r="18" fill="var(--color-glow)" opacity="0.45" filter="url(#helixGlow)" />
+        <circle ref={dot} r="5.5" fill="var(--color-glow-soft)" />
       </svg>
     </div>
   )
