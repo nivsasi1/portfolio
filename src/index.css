@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-void: #050810;
+  --color-panel: #0a1120;
+  --color-line: #14283d;
+  --color-glow: #22d3ee;
+  --color-glow-soft: #67e8f9;
+  --color-dim: #7d93ab;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-void);
+  color: #dbe7f3;
+  font-family: var(--font-display);
+}
+
+/* faint scan-line + grid texture over everything */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.glass {
+  background: color-mix(in srgb, var(--color-panel) 72%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+}
+
+.glow-text {
+  text-shadow: 0 0 18px color-mix(in srgb, var(--color-glow) 55%, transparent);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.35);
+}
