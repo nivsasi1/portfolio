@@ -34,25 +34,25 @@ export function HelixTrail() {
     let raf = 0
     let lastY = -1
 
-    const anchorX = (i: number, w: number) => {
-      const off = Math.min(w * 0.16, 220)
-      return i % 2 === 0 ? off : w - off
-    }
-
     const frame = () => {
       raf = 0
-      const w = window.innerWidth
       const vh = window.innerHeight
       const y = window.scrollY
       const scrolling = y !== lastY
       lastY = y
       const list = els.current
 
-      // viewport-space anchor points, sitting in the gap just above each section
-      const pts = list.map((el, i) => ({
-        x: anchorX(i, w),
-        y: el.getBoundingClientRect().top - 26,
-      }))
+      // anchor just above each section, aligned to its box (inset from the corner),
+      // alternating left/right — keeps the beacon tied to the content, not the screen edge
+      const pts = list.map((el, i) => {
+        const r = el.getBoundingClientRect()
+        const inset = Math.min(r.width * 0.12, 110)
+        return {
+          x: i % 2 === 0 ? r.left + inset : r.right - inset,
+          y: r.top - 22,
+          top: r.top,
+        }
+      })
 
       // draw the connecting weave
       if (line.current && pts.length > 1) {
@@ -68,8 +68,8 @@ export function HelixTrail() {
 
       // active section = last one whose top has crossed 40% of the viewport
       let idx = 0
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].getBoundingClientRect().top <= vh * 0.4) idx = i
+      for (let i = 0; i < pts.length; i++) {
+        if (pts[i].top <= vh * 0.4) idx = i
       }
       const target = pts[idx]
 
