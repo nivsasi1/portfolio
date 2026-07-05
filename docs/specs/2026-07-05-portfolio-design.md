@@ -46,7 +46,7 @@ subtle grid/scan-line texture, Framer Motion animations. English only.
 ## Open items (user to supply later)
 
 - Resume PDF for the download button (placeholder file until then).
-- Bio text final pass (Claude drafts, Niv edits).
+- Bio text final pass.
 - LinkedIn URL.
 - Web3Forms access key (site works with a placeholder; form shows "not configured"
   message until key is set).
