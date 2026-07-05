@@ -3,7 +3,8 @@ import type { FormEvent } from 'react'
 import { profile } from '../data/site'
 import { Section } from './Panel'
 
-const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined
+// trim() also strips a BOM if the env var was saved with one
+const WEB3FORMS_KEY = (import.meta.env.VITE_WEB3FORMS_KEY as string | undefined)?.trim()
 
 type SendState = 'idle' | 'sending' | 'sent' | 'error'
 

@@ -5,7 +5,7 @@ export const profile = {
   email: 'nivsasi@gmail.com',
   github: 'https://github.com/nivsasi1',
   githubUser: 'nivsasi1',
-  linkedin: 'https://linkedin.com/in/niv-sasi',
+  linkedin: 'https://www.linkedin.com/in/niv-sasi-906405309/',
   resumeUrl: '/resume.pdf',
   tagline: 'I build mission-critical, high-scale systems — and AI-powered tools that do real work.',
   bio: [
