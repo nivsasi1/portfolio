@@ -1,14 +1,35 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { profile } from '../data/site'
 import { StatusDot } from './Panel'
 
 export function Hero() {
+  // only stream the ambient video on desktop where motion is welcome;
+  // everyone else gets the static webp poster — no video download
+  const [playVideo, setPlayVideo] = useState(false)
+  useEffect(() => {
+    const m = window.matchMedia('(min-width: 768px) and (prefers-reduced-motion: no-preference)')
+    setPlayVideo(m.matches)
+  }, [])
+
   return (
     <header className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-60"
-        style={{ backgroundImage: 'url(/hero-bg.webp)' }}
-      />
+      {playVideo ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
+          src="/hero-loop.mp4"
+          poster="/hero-bg.webp"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      ) : (
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-60"
+          style={{ backgroundImage: 'url(/hero-bg.webp)' }}
+        />
+      )}
       <div className="absolute inset-0 bg-gradient-to-b from-void/60 via-void/40 to-void" />
 
       <motion.div

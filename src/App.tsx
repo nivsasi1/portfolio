@@ -25,7 +25,8 @@ export default function App() {
     <div className="grid-bg min-h-screen">
       <nav className="fixed top-0 z-40 w-full border-b border-line/60 bg-void/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3 font-mono text-sm">
-          <a href="#" className="text-glow">
+          <a href="#" className="flex items-center gap-2 text-glow">
+            <img src="/emblem.png" alt="" className="h-6 w-6" />
             NS://
           </a>
           <div className="flex gap-5 text-xs text-dim sm:gap-7 sm:text-sm">

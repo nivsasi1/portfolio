@@ -74,6 +74,7 @@ export const projects: Project[] = [
     description:
       'End-to-end content-generation pipeline: pulls stories from Reddit APIs, narrates them with text-to-speech AI, auto-generates subtitles and programmatically edits video — eliminating most manual production work.',
     stack: ['Python', 'Reddit API', 'TTS AI', 'FFmpeg'],
+    image: '/projects/content-pipeline.png',
     status: 'ARCHIVED',
   },
 ]
