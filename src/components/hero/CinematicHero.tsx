@@ -53,15 +53,24 @@ function StaticHero() {
 
 function ScrollHero({ variant }: { variant: HeroVariant }) {
   const trackRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: trackRef, offset: ['start start', 'end end'] })
-  const p = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 })
+  // lenis already lerp-smooths the scroll itself — no extra spring, or the layers lag the scrollbar
+  const { scrollYProgress: p } = useScroll({ target: trackRef, offset: ['start start', 'end end'] })
+
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
 
   // desktop gate: film video + mouse parallax only where they're welcome
-  const [desktop, setDesktop] = useState(false)
+  const [desktop, setDesktop] = useState(() => window.matchMedia('(min-width: 768px)').matches)
   useEffect(() => {
     const m = window.matchMedia('(min-width: 768px)')
-    setDesktop(m.matches)
-    const on = (e: MediaQueryListEvent) => setDesktop(e.matches)
+    const on = (e: MediaQueryListEvent) => {
+      setDesktop(e.matches)
+      if (!e.matches) {
+        // don't leave the last mouse offset baked into the layers
+        mx.set(0)
+        my.set(0)
+      }
+    }
     m.addEventListener('change', on)
     return () => m.removeEventListener('change', on)
   }, [])
@@ -79,14 +88,14 @@ function ScrollHero({ variant }: { variant: HeroVariant }) {
   // copy parallax-exits before the scene settles
   const copyY = useTransform(p, [0.1, 0.5], [0, -160])
   const copyOpacity = useTransform(p, [0.1, 0.45], [1, 0])
+  // once invisible, the CTAs must not swallow clicks for the rest of the pin
+  const copyPointer = useTransform(copyOpacity, (o) => (o < 0.1 ? 'none' : 'auto'))
   const hintOpacity = useTransform(p, [0, 0.08], [1, 0])
 
   // fade to void at the end so About slides over a settled scene
   const exitOpacity = useTransform(p, [0.72, 1], [0, 1])
 
   // secondary mouse parallax, spring-smoothed
-  const mx = useMotionValue(0)
-  const my = useMotionValue(0)
   const smx = useSpring(mx, { stiffness: 45, damping: 18 })
   const smy = useSpring(my, { stiffness: 45, damping: 18 })
   const bgMX = useTransform(smx, (v) => v * -6)
@@ -111,21 +120,22 @@ function ScrollHero({ variant }: { variant: HeroVariant }) {
         onMouseMove={onMouseMove}
       >
         {/* depth layers */}
+        {/* scroll drives y/scale; mouse rides on x/translateY — framer keeps them as separate transform slots */}
         <motion.div
-          className="absolute inset-0 bg-cover bg-center will-change-transform"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${HERO_ASSETS.bg})`, y: bgY, scale: bgScale, x: bgMX, translateY: bgMY }}
         />
         <motion.img
           src={HERO_ASSETS.mid}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-bottom will-change-transform"
+          className="absolute inset-0 h-full w-full object-cover object-bottom"
           style={{ y: midY, scale: midScale, x: midMX, translateY: midMY }}
         />
         <motion.div className="hero-haze absolute inset-0" style={{ opacity: hazeOpacity }} />
         <motion.img
           src={HERO_ASSETS.fg}
           alt=""
-          className="hero-fg absolute inset-0 h-full w-full object-cover object-left-bottom will-change-transform"
+          className="hero-fg absolute inset-0 h-full w-full object-cover object-left-bottom"
           style={{ y: fgY, scale: fgScale, opacity: fgOpacity, x: fgMX, translateY: fgMY }}
         />
 
@@ -139,7 +149,7 @@ function ScrollHero({ variant }: { variant: HeroVariant }) {
         {/* copy */}
         <motion.div
           className="relative z-10 flex h-full items-center justify-center"
-          style={{ y: copyY, opacity: copyOpacity }}
+          style={{ y: copyY, opacity: copyOpacity, pointerEvents: copyPointer }}
         >
           <div className="hero-copy-scrim relative mx-auto max-w-3xl px-5 py-10 text-center">
             <HeroCopy />

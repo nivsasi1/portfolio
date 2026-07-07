@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MotionConfig, useReducedMotion } from 'framer-motion'
 import { ReactLenis } from 'lenis/react'
 import 'lenis/dist/lenis.css'
 import { BootSequence } from './components/BootSequence'
@@ -22,12 +23,16 @@ function initialVariant(): HeroVariant {
 export default function App() {
   const [booted, setBooted] = useState(() => sessionStorage.getItem(BOOT_KEY) === '1')
   const [variant, setVariant] = useState<HeroVariant>(initialVariant)
+  // lenis inertia is exactly what reduced-motion users asked to avoid
+  const reducedMotion = useReducedMotion()
 
   function switchVariant(v: HeroVariant) {
     setVariant(v)
     const url = new URL(window.location.href)
     url.searchParams.set('hero', v)
     window.history.replaceState(null, '', url)
+    // the variants only differ near the top of the hero — jump there so the switch is visible
+    window.scrollTo(0, 0)
   }
 
   function finishBoot() {
@@ -37,8 +42,7 @@ export default function App() {
 
   if (!booted) return <BootSequence onDone={finishBoot} />
 
-  return (
-    <ReactLenis root options={{ anchors: true }}>
+  const page = (
     <div className="grid-bg relative min-h-screen">
       <HelixTrail />
       <nav className="fixed top-0 z-40 w-full border-b border-line/60 bg-void/70 backdrop-blur-md">
@@ -58,7 +62,7 @@ export default function App() {
       </nav>
 
       <CinematicHero variant={variant} />
-      <HeroToggle variant={variant} onChange={switchVariant} />
+      {!reducedMotion && <HeroToggle variant={variant} onChange={switchVariant} />}
       <About />
       <ServiceRecord />
       <Projects />
@@ -70,6 +74,11 @@ export default function App() {
         © {new Date().getFullYear()} {profile.name} · built with React, Tailwind & too much coffee
       </footer>
     </div>
-    </ReactLenis>
+  )
+
+  return (
+    <MotionConfig reducedMotion="user">
+      {reducedMotion ? page : <ReactLenis root options={{ anchors: true }}>{page}</ReactLenis>}
+    </MotionConfig>
   )
 }

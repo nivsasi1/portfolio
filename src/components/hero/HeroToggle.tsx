@@ -20,7 +20,8 @@ export function HeroToggle({
   )
 
   return (
-    <div className="glass fixed bottom-5 right-5 z-50 flex items-center gap-1 p-1">
+    // hidden on mobile: film is desktop-gated there, so the switch would be a silent no-op
+    <div className="glass fixed bottom-5 right-5 z-50 hidden items-center gap-1 p-1 md:flex">
       {btn('layers', 'LAYERS')}
       {btn('film', 'FILM')}
     </div>
