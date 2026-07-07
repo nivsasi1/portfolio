@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { ReactLenis } from 'lenis/react'
+import 'lenis/dist/lenis.css'
 import { BootSequence } from './components/BootSequence'
-import { Hero } from './components/Hero'
+import { CinematicHero, type HeroVariant } from './components/hero/CinematicHero'
+import { HeroToggle } from './components/hero/HeroToggle'
 import { About } from './components/About'
 import { ServiceRecord } from './components/ServiceRecord'
 import { Projects } from './components/Projects'
@@ -12,8 +15,20 @@ import { profile } from './data/site'
 
 const BOOT_KEY = 'ns-booted'
 
+function initialVariant(): HeroVariant {
+  return new URLSearchParams(window.location.search).get('hero') === 'film' ? 'film' : 'layers'
+}
+
 export default function App() {
   const [booted, setBooted] = useState(() => sessionStorage.getItem(BOOT_KEY) === '1')
+  const [variant, setVariant] = useState<HeroVariant>(initialVariant)
+
+  function switchVariant(v: HeroVariant) {
+    setVariant(v)
+    const url = new URL(window.location.href)
+    url.searchParams.set('hero', v)
+    window.history.replaceState(null, '', url)
+  }
 
   function finishBoot() {
     sessionStorage.setItem(BOOT_KEY, '1')
@@ -23,6 +38,7 @@ export default function App() {
   if (!booted) return <BootSequence onDone={finishBoot} />
 
   return (
+    <ReactLenis root options={{ anchors: true }}>
     <div className="grid-bg relative min-h-screen">
       <HelixTrail />
       <nav className="fixed top-0 z-40 w-full border-b border-line/60 bg-void/70 backdrop-blur-md">
@@ -41,7 +57,8 @@ export default function App() {
         </div>
       </nav>
 
-      <Hero />
+      <CinematicHero variant={variant} />
+      <HeroToggle variant={variant} onChange={switchVariant} />
       <About />
       <ServiceRecord />
       <Projects />
@@ -53,5 +70,6 @@ export default function App() {
         © {new Date().getFullYear()} {profile.name} · built with React, Tailwind & too much coffee
       </footer>
     </div>
+    </ReactLenis>
   )
 }

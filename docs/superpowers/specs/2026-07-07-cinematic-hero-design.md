@@ -40,7 +40,8 @@ Desktop adds subtle mouse-move parallax. Film grain + vignette overlay for textu
 ## Non-negotiables
 
 - `prefers-reduced-motion`: static composed frame, no pin, no video autoplay.
-- Mobile: simplified 2-layer parallax, no video download.
+- Mobile: no video download, no mouse parallax; full layer stack retained (transforms only,
+  tested fine — richer than the originally planned 2-layer cut).
 - Transforms/opacity only — no scroll-linked layout or filter animation.
 - Old `Hero.tsx` stays in the tree until a variant is chosen (easy rollback).
 

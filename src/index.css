@@ -11,9 +11,7 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* lenis drives smooth scrolling + anchors; native smooth would fight it */
 
 body {
   background: var(--color-void);
@@ -57,4 +55,42 @@ body::after {
 
 ::selection {
   background: rgba(34, 211, 238, 0.35);
+}
+
+/* cinematic hero textures */
+.hero-haze {
+  background:
+    radial-gradient(120% 60% at 50% 100%, rgba(34, 211, 238, 0.12), transparent 60%),
+    linear-gradient(to top, rgba(5, 8, 16, 0.5), transparent 45%);
+  pointer-events: none;
+}
+
+.hero-grain {
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+/* fade the cutout's clipped top edge so it never shows a hard line mid-scroll */
+.hero-fg {
+  mask-image: linear-gradient(to bottom, transparent 0%, black 22%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%);
+}
+
+/* soft dark pool behind the copy so it stays readable over the bright horizon */
+.hero-copy-scrim::before {
+  content: "";
+  position: absolute;
+  inset: -12% -18%;
+  background: radial-gradient(closest-side, rgba(5, 8, 16, 0.72), rgba(5, 8, 16, 0.35) 55%, transparent);
+  pointer-events: none;
+}
+.hero-copy-scrim > * {
+  position: relative;
+}
+
+.hero-vignette {
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(5, 8, 16, 0.55) 100%);
 }
